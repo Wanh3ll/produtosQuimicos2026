@@ -1,1 +1,1 @@
-# produtosQuimicos2026
+# Relatório de Produtos Químicos da CAEMA 2026
