@@ -1,0 +1,29 @@
+/**
+Não esqueça de adicionar os acionadores nos scripts
+**/
+/** 
+VERIFICAR SE NÃO EXISTEM FUNCÇÕES COM O MESMO NOME! SE ISSO ACONTECER, ALGUM SCRIPT IRÁ FALHAR!
+EX: importarDados(null) no script01.gs e importarDados(null) no script02.gs, 
+fará com que o código ignore um dos scripts e execute o outro
+**/
+
+function dispararSistema(e) {
+  // 1. Verifica se 'e' existe (evita erro se rodar pelo editor)
+  if (!e) return;
+
+  // 2. Filtro de Células: Só prossegue se for F3, G3 ou H3
+  const celula = e.range.getA1Notation();
+  const celulasAlvo = ["F3", "G3", "H3"];
+  
+  if (!celulasAlvo.includes(celula)) {
+    return; // Para o script aqui mesmo se for outra célula
+  }
+
+  // 3. Se passou no teste, executa o sistema
+  sistema(e);
+}
+
+function sistema(e) {
+  monitorarSelecaoItapecuru(e);
+  monitorarSelecaoMorros(e);
+}

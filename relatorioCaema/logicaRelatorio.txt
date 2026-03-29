@@ -1,0 +1,92 @@
+/**
+Não esqueça de adicionar os acionadores nos scripts
+**/
+/**
+ * Monitora as células F3, G3 e H3 para disparar a importação correta.
+ * Configure um gatilho "Ao editar" para esta função no ícone de Relógio.
+ */
+
+function monitorarSelecao(e) {
+  if (!e || !e.range) return;
+
+  const aba = e.source.getActiveSheet();
+  const celula = e.range.getA1Notation();
+
+  // Verifica se a alteração foi em F3, G3 ou H3
+  if (celula === "F3" || celula === "G3" || celula === "H3") {
+    const cidade = aba.getRange("F3").getValue();
+    const mes = aba.getRange("G3").getValue();
+    const ano = aba.getRange("H3").getValue();
+
+    // Só dispara se os três campos estiverem preenchidos
+    if (cidade && mes && ano) {
+      const textoConcatenado = cidade + " " + mes + " " + ano;
+      selecionarEImportar(cidade, mes, ano, textoConcatenado);
+    }
+  }
+}
+
+function selecionarEImportar(cidade, mes, ano, textoConcatenado) {
+  let url = "";
+  const chave = cidade + " " + mes + " " + ano;
+
+  // Lógica de seleção baseada nos links e chaves fornecidas
+  switch (chave) {
+    case "ITAPECURU MARÇO 2026":
+      url = "https://docs.google.com/spreadsheets/d/1-IelB4kKlG1A71CyZ8JnDkjmsXeVBFpX8W-IAfB25_s/edit";
+      break;    
+    case "ITAPECURU ABRIL 2026":
+      url = "https://docs.google.com/spreadsheets/d/1zST5E8VMUtzxm2woEb-H_qLvgoqKO3f0dFmLs2oXoKE/edit";
+      break;
+    case "ITAPECURU MAIO 2026":
+      url = "https://docs.google.com/spreadsheets/d/1pnDUwcrMksUuj7Z2Jso9Fu-6Ma6eMfuWYvdHWBLXnng/edit";
+      break;
+    case "MORROS MARÇO 2026":
+      url = "https://docs.google.com/spreadsheets/d/15WshJfTZ5jfXVIIZ9JTRiVVSrIx8imVQ8bcTfbtkjb4/edit";
+      break;
+    case "MORROS ABRIL 2026":
+      url = "https://docs.google.com/spreadsheets/d/1VgZhCxz4I9sq5BQpi_pSYBhL-V5O75krB8bEeNnEmRA/edit";
+      break;
+    case "MORROS MAIO 2026":
+      url = "https://docs.google.com/spreadsheets/d/1yIBMd0DvkXtbRXmu2K2eN5C5pdGuVi7B_3mNNSz1SI8/edit";
+      break;
+    default:
+      return; 
+  }
+
+  importarDados(url, textoConcatenado);
+}
+
+function importarDados(urlDestino, nomeSistema) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheetDestino = ss.getActiveSheet();
+  
+  try {
+    // 1. Define o Título em A2:E2 com o texto concatenado (F3 + G3 + H3)
+    const rangeTitulo = sheetDestino.getRange("A2:E2");
+    
+    if (!rangeTitulo.isPartOfMerge()) {
+      rangeTitulo.merge();
+    }
+    
+    rangeTitulo.setValue(nomeSistema)
+               .setFontSize(25)
+               .setFontWeight("bold")
+               .setHorizontalAlignment("center")
+               .setVerticalAlignment("middle");
+
+    // 2. Importação dos Dados
+    const ssExterna = SpreadsheetApp.openByUrl(urlDestino);
+    const abaExterna = ssExterna.getSheets()[0]; 
+    const dados = abaExterna.getRange("G2:K36").getValues();
+    
+    const rangeDestino = sheetDestino.getRange("A3:E37");
+    rangeDestino.clearContent();
+    rangeDestino.setValues(dados);
+    
+    ss.toast('Dados de ' + nomeSistema + ' carregados!');
+
+  } catch (err) {
+    SpreadsheetApp.getUi().alert('Erro ao importar: ' + err.message);
+  }
+}
